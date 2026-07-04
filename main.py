@@ -9,10 +9,13 @@ from db import init_db
 from login import show_login
 from register import show_register
 from dashboard import show_dashboard
+from theme import inject_theme, logo_centered, theme_toggle
 
 st.set_page_config(page_title="Ai-gri", page_icon="🌾", layout="wide")
 
 init_db()
+
+inject_theme()
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
