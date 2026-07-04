@@ -15,11 +15,15 @@ def show_register():
     left, center, right = st.columns([1, 2, 1])
 
     with center:
+<<<<<<< HEAD
         logo_centered(width=140)
         st.markdown(
             "<h2 style='text-align:center;'>Create your AI-gri account</h2>",
             unsafe_allow_html=True,
         )
+=======
+        st.title("Create your Ai-gri account")
+>>>>>>> 662e52c695ca513ea282506c5531e39d7f88c6c9
 
         with st.container(border=True):
             c1, c2 = st.columns(2)

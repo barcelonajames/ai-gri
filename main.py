@@ -1,6 +1,6 @@
 """
 main.py
-Entry point and page routing for FarmAI.
+Entry point and page routing for Ai-gri.
 Run with: streamlit run main.py
 """
 

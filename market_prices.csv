@@ -1,6 +1,43 @@
-commodity,price,unit,change
-Palay (dry),23.00,kg,2.5
-Regular milled rice,51.00,kg,-1.2
-Well milled rice,58.00,kg,0.8
-Corn (dry),18.00,kg,1.0
-Urea fertilizer,1450,bag,0.0
+date,commodity,price,unit,source
+2021-04,Palay (dry),17.07,kg,PSA Q2 2021 farmgate avg (cited in PSA Jun 2022 release)
+2021-06,Palay (dry),17.18,kg,PSA monthly farmgate release (cited in PSA Jun 2022 release)
+2022-03,Palay (dry),17.43,kg,PSA - Updates on Farmgate Prices of Palay (Dry) Mar 2023 release
+2022-04,Palay (dry),17.23,kg,PSA - Updates on Farmgate Prices of Palay (Dry) Apr 2023 release
+2022-06,Palay (dry),17.58,kg,PSA - Updates on Farmgate Prices of Palay (Dry) Jun 2022 release
+2022-09,Palay (dry),17.06,kg,PSA - Updates on Farmgate Prices of Palay (Dry) Sep 2023 release
+2023-02,Palay (dry),18.19,kg,PSA - Updates on Farmgate Prices of Palay (Dry) Feb 2023 release
+2023-03,Palay (dry),18.57,kg,PSA - Updates on Farmgate Prices of Palay (Dry) Mar 2023 release
+2023-04,Palay (dry),18.79,kg,PSA - Updates on Farmgate Prices of Palay (Dry) Apr 2023 release
+2023-08,Palay (dry),22.16,kg,PSA - Updates on Farmgate Prices of Palay (Dry) Sep 2023 release
+2023-09,Palay (dry),19.91,kg,PSA - Updates on Farmgate Prices of Palay (Dry) Sep 2023 release
+2024,Palay (dry),23.50,kg,CPBRD Facts & Figures - Palay/Rice Price Update (full-year 2024 avg)
+2025-10,Palay (dry),17.60,kg,PSA Seasonally Adjusted Palay/Rice Production and Prices (Q4 2025)
+2026-01,Palay (dry),21.25,kg,PSA Seasonally Adjusted Palay/Rice Production and Prices (Q1 2026)
+2023,Regular milled rice,40.31,kg,PCAARRD ISP article citing PSA (full-year 2023 retail avg)
+2024,Regular milled rice,50.78,kg,PCAARRD ISP article citing PSA (full-year 2024 retail avg)
+2024-06,Regular milled rice,51.14,kg,BusinessWorld citing PSA Price Situationer (mid-Jun 2024)
+2025-05,Regular milled rice,43.32,kg,PSA Price Situationer of Selected Agri Commodities (2nd phase May 2025)
+2026-01,Regular milled rice,43.52,kg,PSA Price Situationer (2nd phase Jan 2026)
+2026-02,Regular milled rice,45.54,kg,PSA Price Situationer (1st phase Feb 2026)
+2026-03,Regular milled rice,48.69,kg,PSA Price Situationer (2nd phase Mar 2026)
+2026-04,Regular milled rice,51.11,kg,PSA Price Situationer (1st phase Apr 2026)
+2026-05,Regular milled rice,50.91,kg,PSA Price Situationer (2nd phase May 2026)
+2023,Well milled rice,44.54,kg,PCAARRD ISP article citing PSA (full-year 2023 retail avg)
+2023-07,Well milled rice,45.56,kg,PSA Price Situationer (1st phase Jul 2023)
+2023-08,Well milled rice,50.69,kg,PSA Price Situationer (2nd phase Aug 2023)
+2023-09,Well milled rice,51.77,kg,PSA Price Situationer (2nd phase Sep 2023)
+2024,Well milled rice,55.94,kg,PCAARRD ISP article citing PSA (full-year 2024 retail avg)
+2024-06,Well milled rice,56.35,kg,BusinessWorld citing PSA Price Situationer (mid-Jun 2024)
+2026-02,Well milled rice,53.54,kg,PSA Price Situationer (2nd phase Feb 2026)
+2026-03,Well milled rice,55.10,kg,PSA Price Situationer (1st phase Mar 2026)
+2026-04,Well milled rice,58.88,kg,PSA Price Situationer (2nd phase Apr 2026)
+2026-05,Well milled rice,58.33,kg,PSA Price Situationer (1st phase May 2026)
+2026-06,Well milled rice,56.66,kg,PSA Price Situationer (1st phase Jun 2026)
+2020,Corn (dry),12.00,kg,SADI Journal article citing PSA/DA (full-year 2020 farmgate avg, yellow corn)
+2022,Corn (dry),16.50,kg,SADI Journal article citing PSA/DA (full-year 2022 farmgate avg, yellow corn)
+2023-11,Corn (dry),16.58,kg,SADI Journal article citing PSA (late 2023, matured yellow corn)
+2024-12,Urea fertilizer,1581,bag,Statista citing PhilRice (Dec 2024 retail avg, 50kg bag)
+2023,Sugarcane,59.03,kg,Statista citing PSA - derived from stated 2.55 peso YoY decrease off the 2024 figure
+2024,Sugarcane,56.48,kg,Statista citing PSA (full-year 2024 national farmgate avg, for raw sugar production)
+2023,Coconut,19.39,kg,Statista citing PSA (full-year 2023 national wholesale avg, copra)
+2023,Banana,74.84,kg,Statista citing PSA (full-year 2023 national retail avg, medium Lakatan)
