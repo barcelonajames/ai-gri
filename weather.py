@@ -5,6 +5,7 @@ Open-Meteo API (no API key required).
 """
 
 import requests
+import streamlit as st
 
 WEATHER_CODES = {
     0: ("Clear sky", "☀"),
@@ -30,7 +31,7 @@ WEATHER_CODES = {
     99: ("Thunderstorm + hail", "⛈"),
 }
 
-
+@st.cache_data(ttl=1800)  # cache 30 minutes
 def get_weather(lat: float, lng: float):
     """
     Fetch 5-day daily forecast + current weather from Open-Meteo.
@@ -120,3 +121,88 @@ def farm_advice(days: list, crop_type: str) -> str:
             f"Pwedeng mag-spray, mag-fertilize, o mag-harvest ng {crop_type}."
         )
     return " ".join(advisories)
+
+# ─────────────────────────────────────────────────────────────
+# Seasonal forecast
+# ─────────────────────────────────────────────────────────────
+
+@st.cache_data(ttl=86400)  # cache 24 hours — seasonal data barely changes
+def get_seasonal_forecast(lat: float, lng: float, months: int = 5):
+    """
+    Fetch a seasonal outlook from Open-Meteo's seasonal API,
+    aggregated into monthly summaries. Returns a list of dicts
+    or None on failure.
+    """
+    url = "https://seasonal-api.open-meteo.com/v1/seasonal"
+    params = {
+        "latitude": lat,
+        "longitude": lng,
+        "daily": "temperature_2m_max,temperature_2m_min,precipitation_sum",
+        "forecast_days": min(months * 30, 274),  # API max ~9 months
+        "timezone": "Asia/Manila",
+    }
+    try:
+        r = requests.get(url, params=params, timeout=15)
+        r.raise_for_status()
+        daily = r.json().get("daily", {})
+        dates = daily.get("time", [])
+        if not dates:
+            return None
+
+       # Group by month (key: "2026-07")
+        monthly = {}
+        for i, d in enumerate(dates):
+            month_key = d[:7]  # "YYYY-MM"
+            rain = daily["precipitation_sum"][i]
+            tmax = daily["temperature_2m_max"][i]
+            tmin = daily["temperature_2m_min"][i]
+            if month_key not in monthly:
+                monthly[month_key] = {"rain": [], "tmax": [], "tmin": []}
+            if rain is not None:
+                monthly[month_key]["rain"].append(rain)
+            if tmax is not None:
+                monthly[month_key]["tmax"].append(tmax)
+            if tmin is not None:
+                monthly[month_key]["tmin"].append(tmin)
+        month_names = {
+            "01": "Jan", "02": "Feb", "03": "Mar", "04": "Apr",
+            "05": "May", "06": "Jun", "07": "Jul", "08": "Aug",
+            "09": "Sep", "10": "Oct", "11": "Nov", "12": "Dec",
+        }
+
+        results = []
+        for key in sorted(monthly.keys()):
+            m = monthly[key]
+            if not m["rain"] or not m["tmax"]:
+                continue
+            year, month_num = key.split("-")
+            results.append({
+                "key": key,                       # "2026-07"  ← NEW
+                "month": f"{month_names[month_num]} {year}",
+                "total_rain_mm": round(sum(m["rain"]), 1),
+                "avg_temp_max": round(sum(m["tmax"]) / len(m["tmax"]), 1),
+                "avg_temp_min": round(sum(m["tmin"]) / len(m["tmin"]), 1),
+                "rainy_days": sum(1 for r in m["rain"] if r >= 1.0),
+            })
+        return results
+    except Exception:
+        return None
+
+
+def get_season_info(month: int) -> dict:
+    """
+    Wet/dry season classification for Central Mindanao.
+    Rainfall peaks roughly May-October.
+    """
+    if month in (5, 6, 7, 8, 9, 10):
+        return {
+            "season": "Tag-ulan (Wet season)",
+            "icon": "🌧",
+            "advice": ("Bantayan ang drainage at posibleng baha.")
+        }
+    return {
+        "season": "Mas tuyong buwan (Drier months)",
+        "icon": "☀",
+        "advice": ("Magandang panahon para sa pag-aani at pagpapatuyo. "
+                   "Siguraduhing may sapat na irigasyon kung magtatanim."),
+    }
