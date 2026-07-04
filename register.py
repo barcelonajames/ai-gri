@@ -1,6 +1,6 @@
 """
 register.py
-Registration page for FarmAI.
+Registration page for Ai-gri.
 """
 
 import streamlit as st
@@ -11,7 +11,7 @@ def show_register():
     left, center, right = st.columns([1, 2, 1])
 
     with center:
-        st.title("Create your FarmAI account")
+        st.title("Create your Ai-gri account")
 
         with st.container(border=True):
             c1, c2 = st.columns(2)

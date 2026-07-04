@@ -40,19 +40,31 @@ of scraping any site. It checks sources in this order:
    published via File → Share → Publish to web → CSV.
 2. `market_prices.csv` in the project root, which you or a scheduled
    job can overwrite periodically.
-3. Built-in defaults, only if neither source above is reachable.
+3. A small built-in sample, only if neither source above is reachable.
 
-CSV format:
+The CSV is a **tidy time series** — one row per commodity per date —
+so the same file powers both the metric cards and the 5-year trend
+chart on the dashboard:
 ```
-commodity,price,unit,change
-Palay (dry),23.00,kg,2.5
+date,commodity,price,unit
+2021-01-01,Palay (dry),18.50,kg
+2021-02-01,Palay (dry),18.70,kg
 ```
-`change` is the percent to show as the delta (use `0` if you don't
-track it).
+`date` accepts `YYYY-MM-DD`, `YYYY-MM`, or `YYYY` — monthly or annual
+data both work. There's no `change` column anymore: the % change
+shown on each metric card is computed automatically from the latest
+two data points for that commodity, whatever the granularity.
 
-Prices are cached for 1 hour so the dashboard doesn't hammer your CSV
-source on every click; there's a "Refresh prices" button on the
-dashboard to force an immediate reload.
+Prices/trends are cached for 1 hour so the dashboard doesn't hammer
+your CSV source on every click; there's a "Refresh prices" button on
+the dashboard to force an immediate reload. The dashboard also has a
+commodity dropdown under "Price Trend" that plots the full history
+for whichever commodity you pick, using `st.line_chart`.
+
+The `market_prices.csv` shipped in this repo is **illustrative sample
+data only** — not real PSA figures. Replace it with real PSA OpenSTAT
+data (reshaped into the format above) before using it to make actual
+farming decisions.
 
 ## Note on storage
 

@@ -1,6 +1,6 @@
 """
 login.py
-Login page for FarmAI.
+Login page for Ai-gri.
 """
 
 import streamlit as st

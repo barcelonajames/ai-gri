@@ -4,13 +4,19 @@ Main dashboard shell: sidebar navigation + overview page.
 """
 
 import streamlit as st
+import pandas as pd
 from datetime import datetime
 
 from db import get_fields, get_scans, get_scan_count
 from weather import get_weather, farm_advice, WEATHER_CODES
 from fields import show_fields
 from disease import show_disease
-from market_prices import get_market_prices, refresh_market_prices
+from market_prices import (
+    get_market_prices,
+    get_price_trend,
+    get_commodity_list,
+    refresh_market_prices,
+)
 
 
 def show_dashboard(farmer):
@@ -194,14 +200,31 @@ def show_overview(farmer):
     if not prices:
         st.info("No market price data available yet.")
     else:
-        price_cols = st.columns(len(prices))
-        for i, (name, info) in enumerate(prices.items()):
-            with price_cols[i]:
-                st.metric(
-                    label=name,
-                    value=f"₱{info['price']}/{info['unit']}",
-                    delta=f"{info['change']:+.1f}%",
-                )
+        items = list(prices.items())
+        cards_per_row = 4
+        for row_start in range(0, len(items), cards_per_row):
+            row_items = items[row_start:row_start + cards_per_row]
+            row_cols = st.columns(cards_per_row)
+            for col, (name, info) in zip(row_cols, row_items):
+                with col:
+                    st.metric(
+                        label=name,
+                        value=f"₱{info['price']}/{info['unit']}",
+                        delta=f"{info['change']:+.1f}%",
+                    )
+
+        st.write("")
+        st.markdown("**Price Trend**")
+        commodities = get_commodity_list()
+        selected_commodity = st.selectbox(
+            "Select commodity", commodities, key="price_trend_commodity"
+        )
+        trend = get_price_trend(selected_commodity)
+        if len(trend) < 2:
+            st.caption("Not enough historical data yet to plot a trend.")
+        else:
+            df = pd.DataFrame(trend, columns=["Date", "Price"]).set_index("Date")
+            st.line_chart(df)
 
     st.divider()
 
