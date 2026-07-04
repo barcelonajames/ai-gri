@@ -10,6 +10,9 @@ from datetime import date
 from db import add_field, get_fields, delete_field
 from weather import get_weather
 
+from harvest import estimate_harvest, harvest_advice
+
+
 CROP_TYPES = ["Rice", "Corn", "Coconut", "Banana", "Sugarcane"]
 SIZE_UNITS = ["hectares", "sqm", "acres"]
 
@@ -99,6 +102,16 @@ def show_fields(farmer):
                         st.warning("Heavy rain expected today")
                     elif today["rain_pct"] >= 40:
                         st.info("Possible rain today")
+            est = estimate_harvest(crop_type, date_planted)   # ensure this is a date object
+            if est:
+                st.progress(est["progress"],
+                            text=f"Harvest progress: {int(est['progress']*100)}%")
+
+                weather_days = weather["days"] if (weather := None) else None  # see note below
+                st.markdown(f"🌾 {harvest_advice(est, crop_type, weather_days)}")
+
+                if est["status"] == "ready":
+                    st.success(f"Harvest window: {est['early']:%b %d} – {est['late']:%b %d, %Y}")
 
             if st.button("Delete", key=f"delete_{field_id}"):
                 delete_field(field_id, farmer["id"])
