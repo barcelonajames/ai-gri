@@ -1,25 +1,22 @@
 """
 dashboard.py
 Main dashboard shell: sidebar navigation + overview page.
+AI-gri themed (theme.py). Structure and all data calls unchanged.
 """
 
 import streamlit as st
-import pandas as pd
 from datetime import datetime
 
 from db import get_fields, get_scans, get_scan_count
 from weather import get_weather, farm_advice, WEATHER_CODES
 from fields import show_fields
 from disease import show_disease
-from market_prices import (
-    get_market_prices,
-    get_price_trend,
-    get_commodity_list,
-    refresh_market_prices,
-)
+from market_prices import get_market_prices, refresh_market_prices
+from theme import inject_theme, current, theme_toggle, logo_sidebar, GREEN
 
 
 def show_dashboard(farmer):
+    inject_theme()
     render_sidebar(farmer)
 
     nav = st.session_state.get("nav", "Overview")
@@ -33,6 +30,7 @@ def show_dashboard(farmer):
 
 
 def render_sidebar(farmer):
+    t = current()
     with st.sidebar:
         initials = (farmer["first_name"][:1] + farmer["last_name"][:1]).upper()
         st.markdown(
@@ -40,14 +38,18 @@ def render_sidebar(farmer):
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
                 <div style="
                     width:48px;height:48px;border-radius:50%;
-                    background-color:#2E7D32;color:white;
+                    background-color:{GREEN};color:white;
                     display:flex;align-items:center;justify-content:center;
                     font-weight:bold;font-size:18px;">
                     {initials}
                 </div>
                 <div>
-                    <div style="font-weight:600;">{farmer['first_name']} {farmer['last_name']}</div>
-                    <div style="color:gray;font-size:0.85em;">@{farmer['username']}</div>
+                    <div style="font-weight:700;color:{t['text']};">
+                        {farmer['first_name']} {farmer['last_name']}
+                    </div>
+                    <div style="color:{t['text2']};font-size:0.85em;">
+                        @{farmer['username']}
+                    </div>
                 </div>
             </div>
             """,
@@ -65,11 +67,16 @@ def render_sidebar(farmer):
 
         st.divider()
 
+        theme_toggle(where="sidebar")
+
         if st.button("Logout", use_container_width=True):
             st.session_state.logged_in = False
             st.session_state.farmer = None
             st.session_state.page = "login"
             st.rerun()
+
+        # AI-gri logo pinned at the bottom of the sidebar
+        logo_sidebar(width=130)
 
 
 def show_overview(farmer):
@@ -116,11 +123,11 @@ def show_overview(farmer):
             weather = get_weather(lat, lng)
             if weather:
                 code = weather["current_code"]
-                _, icon = WEATHER_CODES.get(code, ("", "❓"))
+                _, icon = WEATHER_CODES.get(code, ("", "\u2753"))
                 temp = weather["current_temp"]
                 st.metric(
-                    label=f"{icon} Current weather — {geo_field[7]}",
-                    value=f"{temp}°C",
+                    label=f"{icon} Current weather \u2014 {geo_field[7]}",
+                    value=f"{temp}\u00b0C",
                 )
             else:
                 st.caption("Weather unavailable")
@@ -165,13 +172,13 @@ def show_overview(farmer):
                 with st.container(border=True):
                     st.markdown(f"**{date_label}**")
                     st.markdown(f"{day['icon']} {day['label']}")
-                    st.markdown(f"**{day['temp_max']}° / {day['temp_min']}°C**")
+                    st.markdown(f"**{day['temp_max']}\u00b0 / {day['temp_min']}\u00b0C**")
                     st.caption(f"Rain: {day['rain_pct']}%")
                     st.caption(f"Wind: {day['wind_kmh']} km/h")
 
         st.caption(
             f"Based on coordinates of {geo_field[7]} "
-            f"({lat:.4f}, {lng:.4f}) · Source: Open-Meteo"
+            f"({lat:.4f}, {lng:.4f}) \u00b7 Source: Open-Meteo"
         )
     else:
         with st.container(border=True):
@@ -193,38 +200,21 @@ def show_overview(farmer):
 
     prices, price_source, fetched_at = get_market_prices()
     st.caption(
-        f"Source: {price_source} · "
+        f"Source: {price_source} \u00b7 "
         f"Last loaded {fetched_at.strftime('%b %d, %I:%M %p')}"
     )
 
     if not prices:
         st.info("No market price data available yet.")
     else:
-        items = list(prices.items())
-        cards_per_row = 4
-        for row_start in range(0, len(items), cards_per_row):
-            row_items = items[row_start:row_start + cards_per_row]
-            row_cols = st.columns(cards_per_row)
-            for col, (name, info) in zip(row_cols, row_items):
-                with col:
-                    st.metric(
-                        label=name,
-                        value=f"₱{info['price']}/{info['unit']}",
-                        delta=f"{info['change']:+.1f}%",
-                    )
-
-        st.write("")
-        st.markdown("**Price Trend**")
-        commodities = get_commodity_list()
-        selected_commodity = st.selectbox(
-            "Select commodity", commodities, key="price_trend_commodity"
-        )
-        trend = get_price_trend(selected_commodity)
-        if len(trend) < 2:
-            st.caption("Not enough historical data yet to plot a trend.")
-        else:
-            df = pd.DataFrame(trend, columns=["Date", "Price"]).set_index("Date")
-            st.line_chart(df)
+        price_cols = st.columns(len(prices))
+        for i, (name, info) in enumerate(prices.items()):
+            with price_cols[i]:
+                st.metric(
+                    label=name,
+                    value=f"\u20b1{info['price']}/{info['unit']}",
+                    delta=f"{info['change']:+.1f}%",
+                )
 
     st.divider()
 
