@@ -85,14 +85,14 @@ def show_overview(farmer):
         prev_choice = st.session_state.get("weather_field_choice")
         default_label = prev_choice if prev_choice in options else list(options)[0]
 
-        col_greet, col_weather, col_select = st.columns([2, 1, 1.2])
+        col_greet, col_weather, col_select = st.columns([2, 1, 1])
         with col_greet:
             st.title(f"Kumusta, {farmer['first_name']}!")
 
         with col_select:
             if len(geo_fields) > 1:
                 chosen_label = st.selectbox(
-                    "Weather field",
+                    "Farm Field",
                     list(options.keys()),
                     index=list(options.keys()).index(default_label),
                     key="weather_field_choice",
