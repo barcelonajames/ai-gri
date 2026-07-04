@@ -6,10 +6,17 @@ AI-gri themed (theme.py). Keeps price-trend graph + harvest-ready structure.
 
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+from datetime import  datetime, date
 
+from harvest import estimate_harvest
 from db import get_fields, get_scans, get_scan_count
-from weather import get_weather, farm_advice, WEATHER_CODES
+from weather import (
+    get_weather,
+    farm_advice,
+    WEATHER_CODES,
+    get_seasonal_forecast,
+    get_season_info,
+)
 from fields import show_fields
 from disease import show_disease
 from market_prices import (
@@ -191,6 +198,91 @@ def show_overview(farmer):
                 "Add latitude and longitude to a field in "
                 "My Fields to see the weather forecast for your farm."
             )
+
+    st.divider()
+
+
+    # Seasonal outlook
+    st.subheader("6-Months Seasonal Outlook")
+
+    season = get_season_info(datetime.now().month)
+    st.info(f"{season['icon']} **{season['season']}** — {season['advice']}")
+
+    if geo_field and lat and lng:
+        months_data = get_seasonal_forecast(lat, lng, months=6)
+        if months_data:
+            # ── #1: Tag best months ──────────────────────────
+            best_plant = min(months_data, key=lambda m: abs(m["total_rain_mm"] - 150))
+            best_dry = min(months_data, key=lambda m: m["total_rain_mm"])
+
+            month_cols = st.columns(len(months_data))
+            for col, m in zip(month_cols, months_data):
+                if m["total_rain_mm"] >= 200:
+                    icon = "🌧"
+                elif m["total_rain_mm"] >= 100:
+                    icon = "🌦"
+                else:
+                    icon = "☀"
+
+                tag = ""
+                if m["key"] == best_plant["key"]:
+                    tag = "🌱 Best to Plant"
+                elif m["key"] == best_dry["key"]:
+                    tag = "🌾 Best to Harvest"
+
+                with col:
+                    with st.container(border=True):
+                        st.markdown(f"**{m['month']}**")
+                        st.markdown(
+                            f"<div style='font-size:2em;text-align:center;'>{icon}</div>",
+                            unsafe_allow_html=True,
+                        )
+                        st.markdown(
+                            f"<div style='text-align:center;font-weight:bold;'>{m['total_rain_mm']} mm</div>",
+                            unsafe_allow_html=True,
+                        )
+                        st.caption(f"🌡 {m['avg_temp_min']}–{m['avg_temp_max']}°C")
+                        if tag:
+                            st.markdown(
+                                f"<div style='text-align:center;color:{GREEN};"
+                                f"font-size:0.8em;font-weight:bold;'>{tag}</div>",
+                                unsafe_allow_html=True,
+                            )
+
+            # ── #2: Cross-check harvest window vs rainfall ───
+            est = estimate_harvest(geo_field[3], geo_field[4])  # crop_type, date_planted
+            if est and est["status"] == "growing":
+                harvest_key = est["early"].strftime("%Y-%m")
+                match = next(
+                    (m for m in months_data if m["key"] == harvest_key), None
+                )
+                if match:
+                    if match["total_rain_mm"] >= 200:
+                        st.warning(
+                            f"⚠ Ang inaasahang anihan ng iyong {geo_field[3]} "
+                            f"({est['early']:%b %Y}) ay tumatapat sa maulang buwan "
+                            f"({match['total_rain_mm']} mm). Maghanda ng drying at "
+                            f"storage plan, o pag-isipang mag-ani nang mas maaga "
+                            f"kung hinog na."
+                        )
+                    elif match["total_rain_mm"] < 100:
+                        st.success(
+                            f"✅ Ang inaasahang anihan ng iyong {geo_field[3]} "
+                            f"({est['early']:%b %Y}) ay tumatapat sa tuyong buwan — "
+                            f"magandang kondisyon para sa pag-ani at pagpapatuyo."
+                        )
+
+            st.caption(
+                "🌧 Maulan (200+ mm) · 🌦 May ulan (100–200 mm) · ☀ Tagtuyo (below 100 mm) "
+                "· Ito ay tantiya lamang · Source: Open-Meteo Seasonal"
+            )
+        else:
+            st.caption(
+                "Hindi ma-load ang seasonal forecast ngayon — "
+                "makikita pa rin ang season advisory sa itaas."
+            )
+    else:
+        st.caption("Magdagdag ng coordinates sa isang field para makita ang seasonal chart.")
 
     st.divider()
 
