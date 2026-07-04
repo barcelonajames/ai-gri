@@ -1,17 +1,25 @@
 """
 register.py
-Registration page for FarmAI.
+Sign Up page for AI-gri.
 """
 
 import streamlit as st
 from db import register_user
+from theme import inject_theme, logo_centered, theme_toggle
 
 
 def show_register():
+    inject_theme()
+    theme_toggle(where="corner")
+
     left, center, right = st.columns([1, 2, 1])
 
     with center:
-        st.title("Create your FarmAI account")
+        logo_centered(width=140)
+        st.markdown(
+            "<h2 style='text-align:center;'>Create your AI-gri account</h2>",
+            unsafe_allow_html=True,
+        )
 
         with st.container(border=True):
             c1, c2 = st.columns(2)
