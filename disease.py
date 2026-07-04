@@ -11,8 +11,8 @@ import json
 from db import get_fields, save_scan, get_scans
 
 CROP_OPTIONS = [
-    "Rice/Palay", "Corn", "Sitaw", "Ampalaya",
-    "Kamote", "Saging", "Kamatis", "Other",
+    "Rice/Palay", "Corn", "Coconut", "Sugarcane",
+    "Saging", "Other",
 ]
 
 
