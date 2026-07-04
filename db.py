@@ -183,20 +183,33 @@ def save_scan(user_id, field_id, crop_type, image_name, diagnosis, severity):
         conn.commit()
 
 
-def get_scans(user_id, limit=10):
+def get_scans(user_id, limit=10, field_id="ALL"):
     """
     Returns list of tuples:
     (id, user_id, field_id, crop_type, image_name, diagnosis, severity, created_at)
+
+    field_id options:
+      "ALL"  -> all scans (default)
+      None   -> only scans not linked to any field
+      <int>  -> only scans for that field
     """
+    query = """SELECT id, user_id, field_id, crop_type, image_name,
+                      diagnosis, severity, created_at
+               FROM scan_history WHERE user_id = ?"""
+    params = [user_id]
+
+    if field_id is None:
+        query += " AND field_id IS NULL"
+    elif field_id != "ALL":
+        query += " AND field_id = ?"
+        params.append(field_id)
+
+    query += " ORDER BY created_at DESC LIMIT ?"
+    params.append(limit)
+
     with closing(get_conn()) as conn:
         cur = conn.cursor()
-        cur.execute(
-            """SELECT id, user_id, field_id, crop_type, image_name,
-                      diagnosis, severity, created_at
-               FROM scan_history WHERE user_id = ?
-               ORDER BY created_at DESC LIMIT ?""",
-            (user_id, limit),
-        )
+        cur.execute(query, params)
         return cur.fetchall()
 
 
