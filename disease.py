@@ -124,10 +124,27 @@ ONLY in this exact JSON format (no markdown, no extra text):
             )
             st.caption("Scan saved to your history.")
 
+    
     # Scan history
     st.divider()
-    st.subheader("Your Scan History")
-    scans = get_scans(farmer["id"], limit=10)
+    hist_col, filter_col = st.columns([2, 1])
+    with hist_col:
+        st.subheader("Your Scan History")
+    with filter_col:
+        filter_options = ["All fields", "No specific field"] + [f[2] for f in fields]
+        selected_filter = st.selectbox(
+            "Filter by field", filter_options, key="scan_filter",
+            label_visibility="collapsed",
+        )
+
+    if selected_filter == "All fields":
+        scans = get_scans(farmer["id"], limit=10)
+    elif selected_filter == "No specific field":
+        scans = get_scans(farmer["id"], limit=10, field_id=None)
+    else:
+        fid = next((f[0] for f in fields if f[2] == selected_filter), None)
+        scans = get_scans(farmer["id"], limit=10, field_id=fid)
+        
     if not scans:
         st.info("No scans yet.")
     else:
