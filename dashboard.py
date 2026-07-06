@@ -203,13 +203,13 @@ def show_overview(farmer):
 
 
     # Seasonal outlook
-    st.subheader("6-Months Seasonal Outlook")
+    st.subheader("Seasonal Outlook")
 
     season = get_season_info(datetime.now().month)
     st.info(f"{season['icon']} **{season['season']}** — {season['advice']}")
 
     if geo_field and lat and lng:
-        months_data = get_seasonal_forecast(lat, lng, months=6)
+        months_data = get_seasonal_forecast(lat, lng, months=5)
         if months_data:
             # ── #1: Tag best months ──────────────────────────
             best_plant = min(months_data, key=lambda m: abs(m["total_rain_mm"] - 150))
